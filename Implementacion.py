@@ -1,3 +1,4 @@
+
 # Universidad del Valle de Guatemala
 # Algoritmos y estructura de datos
 # Hoja de Trabajo 10: Recomendaciones
@@ -43,15 +44,13 @@ def visitaDoc():
         
         nombrePac = input("\nPor favor ingrese el nombre del paciente: ")
 
-        q = 'MATCH (u:Paciente) WHERE u.name="'+nombrePac+'" RETURN u'
-        #pacienteActual = q        
-        pacientes = db.query(q, returns=(RAW))
+        q = 'MATCH (u:Paciente) WHERE u.Name="'+nombrePac+'" RETURN u'
+        pacientes = db.query(q, returns=(client.Node))
 
         if (not pacientes):
             print ("El paciente ingresado no existe en la lista!")
             
-        else:
-            pacienteActual = paciente[0]      
+        else:    
             break;
 
 
@@ -61,13 +60,12 @@ def visitaDoc():
 
         nombreDoc =input("\nPor favor ingrese el nombre del doctor: ")
 
-        q = 'MATCH (u:Doctor) WHERE u.name="'+nombreDoc+'" RETURN u'
+        q = 'MATCH (u:Doctor) WHERE u.Name="'+nombreDoc+'" RETURN u'
         doctores = db.query(q, returns=(client.Node))
 
         if (not doctores):
             print ("El doctor ingresado no existe en la lista!")
         else:
-            doctorActual = doctores[0]
             break;
         
 
@@ -101,7 +99,7 @@ def imprimirPacientes():
     print ("\nLa lista de pacientes es la siguiente:")
     for r in pacientes:
         contador += 1
-        print( "%s. " "%s" % (contador, r[0]["name"]))
+        print( "%s. " "%s" % (contador, r[0]["Name"]))
 
 
 def imprimirDoctores():
@@ -114,4 +112,4 @@ def imprimirDoctores():
     print ("\nLa lista de doctores es la siguiente:")
     for r in pacientes:
         contador += 1
-        print( "%s. " "%s" % (contador, r[0]["name"]))
+        print( "%s. " "%s" % (contador, r[0]["Name"]))
