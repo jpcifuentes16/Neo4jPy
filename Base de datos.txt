@@ -1,0 +1,5 @@
+Database Name: HT10
+Password: OdioFisica
+
+Para ver la base de datos, usar:
+http://localhost:7474/browser/
