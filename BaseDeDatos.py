@@ -21,7 +21,7 @@ doctor.add(Oscar,Jose,Javier)
 p1 = db.nodes.create(Name="Paciente1", numero= "8888")
 paciente.add(p1)
  
-p1.relationships.create("Visits", Oscar)
+p1.relationships.create("Visits",Oscar)
 
 
 

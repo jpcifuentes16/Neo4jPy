@@ -18,7 +18,7 @@ doctor = db.labels.create("Doctor")
 paciente = db.labels.create("Paciente")
 medicina = db.labels.create("Medicina")
 visita = db.labels.create("Visita")
-
+fecha = db.labels.create("Fecha")
 
 def ingresarDoctor(nombre,especialidad,colegiado,telefono):
 
@@ -50,7 +50,8 @@ def visitaDoc():
         if (not pacientes):
             print ("El paciente ingresado no existe en la lista!")
             
-        else:    
+        else:
+            
             break;
 
 
@@ -66,12 +67,51 @@ def visitaDoc():
         if (not doctores):
             print ("El doctor ingresado no existe en la lista!")
         else:
-            break;
+            #nombrePac
+            #nombreDoc
+            #p2.relationships.create("Visits", Javier)
+
+            q = 'MATCH (u:Doctor) WHERE u.Name="'+nombreDoc+'" RETURN u'
+            doctor3 = db.query(q, returns=(client.Node))         
+
+    
+            for r in doctor3:
+                nombre=r[0]["Name"]
+                colegiado=r[0]["Colegiado"]
+                especialidad=r[0]["Especialidad"]
+                telefono=r[0]["Telefono"]
+                break
+
+
+            k = 'MATCH (u:Paciente) WHERE u.Name="'+nombrePac+'" RETURN u'
+            pacientes = db.query(k, returns=(client.Node))
+
+    
+   
+            for i in pacientes:
+            
+                
+                nombre2=i[0]["Name"]
+                numero=i[0]["numero"]
+                break
+                
+            Doc2 = db.nodes.create(Name=nombre,Especialidad=especialidad,Colegiado=colegiado,Telefono=telefono)
+            doctor.add(Doc2)
+
+            Pac2= db.nodes.create(Name=nombre2, numero=numero)
+            paciente.add(Pac2)
+
+            Pac2.relationships.create("Visits", Doc2)
+   
+            
+
+            break
         
 
     #Se crea el nodo de la fecha en que se realizo la consulta
     fecha = input ("\nIngrese la fecha de consulta: ")
     nodoFecha = db.nodes.create(Fecha=fecha)
+    fecha.add(nodoFecha)
 
 
     #Se ingresan los datos de la prescripcion
@@ -85,8 +125,10 @@ def visitaDoc():
     medicina.add(nodoMedicina)
 
     #Se crea las relaciones de los nodos
-    pacienteActual.relationships.create("Takes", nodoMedicina)
-    doctorActual.relationships.create("Prescribe", nodoMedicina)
+    Pac2.relationships.create("Takes", nodoMedicina)
+    Doc2.relationships.create("Prescribe", nodoMedicina)
+    Doc2.relationships.create("Visits", nodoFecha)
+    nodoFecha.relationships.create("Visits", Pac2)
 
 
 def imprimirPacientes():
