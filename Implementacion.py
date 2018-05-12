@@ -80,10 +80,11 @@ def visitaDoc():
 
             #Se crea el nodo de la fecha en que se realizo la consulta
             fecha = input ("\nIngrese la fecha de consulta: ")
+            '''
             nodoFecha = db.nodes.create(Fecha=fecha)
             fecha = db.labels.create("Fecha")
             fecha.add(nodoFecha)
-
+'''
 
             #Se ingresan los datos de la prescripcion
             nombreMed = input ("Ingrese la medicina recetada al paciente: ")
@@ -104,11 +105,11 @@ def visitaDoc():
                 for i in pacientes:
                     #Se crea las relaciones de los nodos
                     i[0].relationships.create("Visits", r[0])
-
                     i[0].relationships.create("Takes", nodoMedicina)
                     r[0].relationships.create("Prescribe", nodoMedicina)
-                    i[0].relationships.create("Visits", nodoFecha)
-                    nodoFecha.relationships.create("Visits", r[0])
+                    
+                    #i[0].relationships.create("Visits", nodoFecha)
+                    #nodoFecha.relationships.create("Visits", r[0])
 
             break
         
