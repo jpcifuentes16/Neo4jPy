@@ -67,10 +67,7 @@ def visitaDoc():
         if (not doctores):
             print ("El doctor ingresado no existe en la lista!")
         else:
-            #nombrePac
-            #nombreDoc
-            #p2.relationships.create("Visits", Javier)
-
+            
             q = 'MATCH (u:Doctor) WHERE u.Name="'+nombreDoc+'" RETURN u'
             doctor3 = db.query(q, returns=(client.Node))
             
@@ -108,9 +105,6 @@ def visitaDoc():
                     i[0].relationships.create("Takes", nodoMedicina)
                     r[0].relationships.create("Prescribe", nodoMedicina)
                     
-                    #i[0].relationships.create("Visits", nodoFecha)
-                    #nodoFecha.relationships.create("Visits", r[0])
-
             break
         
 
@@ -241,4 +235,4 @@ def crearRelacionesEntrePersonas():
             #Se crea las relaciones de los nodos
             r[0].relationships.create("Knows", i[0])
 
-    #nombrePer1.relationships.create("Knows", nombrePer2)
+    
