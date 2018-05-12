@@ -72,63 +72,48 @@ def visitaDoc():
             #p2.relationships.create("Visits", Javier)
 
             q = 'MATCH (u:Doctor) WHERE u.Name="'+nombreDoc+'" RETURN u'
-            doctor3 = db.query(q, returns=(client.Node))         
-
-    
-            for r in doctor3:
-                nombre=r[0]["Name"]
-                colegiado=r[0]["Colegiado"]
-                especialidad=r[0]["Especialidad"]
-                telefono=r[0]["Telefono"]
-                break
-
-
+            doctor3 = db.query(q, returns=(client.Node))
+            
             k = 'MATCH (u:Paciente) WHERE u.Name="'+nombrePac+'" RETURN u'
             pacientes = db.query(k, returns=(client.Node))
 
-    
-   
-            for i in pacientes:
-            
-                
-                nombre2=i[0]["Name"]
-                numero=i[0]["numero"]
-                break
-                
-            Doc2 = db.nodes.create(Name=nombre,Especialidad=especialidad,Colegiado=colegiado,Telefono=telefono)
-            doctor.add(Doc2)
 
-            Pac2= db.nodes.create(Name=nombre2, numero=numero)
-            paciente.add(Pac2)
+            #Se crea el nodo de la fecha en que se realizo la consulta
+            fecha = input ("\nIngrese la fecha de consulta: ")
+            nodoFecha = db.nodes.create(Fecha=fecha)
+            fecha = db.labels.create("Fecha")
+            fecha.add(nodoFecha)
 
-            Pac2.relationships.create("Visits", Doc2)
-   
+
+            #Se ingresan los datos de la prescripcion
+            nombreMed = input ("Ingrese la medicina recetada al paciente: ")
+            fechaInicio = input ("Ingrese la fecha de inicio del tratamiento: ")
+            fechaFin = input ("Ingrese la fecha del fin del tratamiento: ")
+            dosis = input ("Ingrese la dosis recetada: ")    
+
+            #Se crea el nodo de la medicina
+            nodoMedicina = db.nodes.create(Name=nombreMed,desdeFecha=fechaInicio,hastaFecha=fechaFin,Dosis=dosis)
+            medicina.add(nodoMedicina)
+
             
+           
+
+            
+
+            for r in doctor3:
+                for i in pacientes:
+                    #Se crea las relaciones de los nodos
+                    i[0].relationships.create("Visits", r[0])
+
+                    i[0].relationships.create("Takes", nodoMedicina)
+                    r[0].relationships.create("Prescribe", nodoMedicina)
+                    i[0].relationships.create("Visits", nodoFecha)
+                    nodoFecha.relationships.create("Visits", r[0])
 
             break
         
 
-    #Se crea el nodo de la fecha en que se realizo la consulta
-    fecha = input ("\nIngrese la fecha de consulta: ")
-    nodoFecha = db.nodes.create(Fecha=fecha)
-    fecha.add(nodoFecha)
-
-
-    #Se ingresan los datos de la prescripcion
-    nombreMed = input ("Ingrese la medicina recetada al paciente: ")
-    fechaInicio = input ("Ingrese la fecha de inicio del tratamiento: ")
-    fechaFin = input ("Ingrese la fecha del fin del tratamiento: ")
-    dosis = input ("Ingrese la dosis recetada: ")    
-
-    #Se crea el nodo de la medicina
-    nodoMedicina = db.nodes.create(Name=nombreMed,desdeFecha=fechaInicio,hastaFecha=fechaFin,Dosis=dosis)
-    medicina.add(nodoMedicina)
-
-    #Se crea las relaciones de los nodos
-    Pac2.relationships.create("Takes", nodoMedicina)
-    Doc2.relationships.create("Prescribe", nodoMedicina)
-    Doc2.relationships.create("Visits", nodoFecha)
-    nodoFecha.relationships.create("Visits", Pac2)
+    
 
 
 def imprimirPacientes():
@@ -155,3 +140,90 @@ def imprimirDoctores():
     for r in pacientes:
         contador += 1
         print( "%s. " "%s" % (contador, r[0]["Name"]))
+        
+def imprimrPersonas():
+    q = 'MATCH (u:Paciente) RETURN u'
+    pacientes = db.query(q, returns=(client.Node))
+
+    contador = 0
+
+    print ("\nLa lista de personas es la siguiente:")
+    for r in pacientes:
+        contador += 1
+        print( "%s. " "%s" % (contador, r[0]["Name"]))
+
+    q = 'MATCH (u:Doctor) RETURN u'
+    pacientes = db.query(q, returns=(client.Node))
+
+    for r in pacientes:
+        contador += 1
+        print( "%s. " "%s" % (contador, r[0]["Name"]))
+    
+
+def buscarDocPorEspecialidad(especialidad):
+    q = 'MATCH (u:Doctor) WHERE u.Especialidad="'+especialidad+'" RETURN u'
+    pacientes = db.query(q, returns=(client.Node))
+
+    contador = 0
+
+    print ("\nLa lista de doctores es la siguiente:")
+    for r in pacientes:
+        contador += 1
+        print( "%s. " "%s" % (contador, r[0]["Name"]))
+
+    if(contador==0):
+        print("No hay ningun doctor con dicha especialidad")
+
+
+def crearRelacionesEntrePersonas():
+    imprimrPersonas()
+    controlSinUso=0
+    while True:
+        
+        nombrePer1 = input("\nPor favor ingrese el nombre de la persona: ")
+
+        q = 'MATCH (u:Paciente) WHERE u.Name="'+nombrePer1+'" RETURN u'
+        posPersonas1 = db.query(q, returns=(client.Node))
+
+        k = 'MATCH (u:Doctor) WHERE u.Name="'+nombrePer1+'" RETURN u'
+        posPersonas2 = db.query(k, returns=(client.Node))
+
+        
+
+        if (not posPersonas1):
+            controlSinUso=0           
+        else:
+            break
+            
+        if (not posPersonas2):
+            controlSinUso=0
+        else:
+            break
+        print ("La persoana ingresado no existe en la lista!")
+
+    
+    while True:
+        
+        nombrePer2 = input("\nIngrese a la persona que conoce "+nombrePer1+" : ")
+
+        q = 'MATCH (u:Paciente) WHERE u.Name="'+nombrePer2+'" RETURN u'
+        posPersonas1 = db.query(q, returns=(client.Node))
+
+        k = 'MATCH (u:Doctor) WHERE u.Name="'+nombrePer2+'" RETURN u'
+        posPersonas2 = db.query(k, returns=(client.Node))
+
+        
+
+        if (not posPersonas1):
+            controlSinUso=0           
+        else:
+            break
+            
+        if (not posPersonas2):
+            controlSinUso=0
+        else:
+            break
+        print ("La persoana ingresado no existe en la lista!")
+
+    
+    nombrePer1.relationships.create("Knows", nombrePer2)

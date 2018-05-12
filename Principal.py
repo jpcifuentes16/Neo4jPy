@@ -47,13 +47,14 @@ while True:
         visitaDoc()
 
     elif (seleccion=="4"):
+        especialidad=input("Ingrese que tipo de especialidad busca en el doctor: ")
+        buscarDocPorEspecialidad(especialidad)
         
-        print ("k")
 
     elif (seleccion=="5"):
 
         #Una persona conoce a otra
-        print ("ase")
+        crearRelacionesEntrePersonas()
 
     elif (seleccion=="6"):
 
