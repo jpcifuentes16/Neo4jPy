@@ -177,7 +177,7 @@ def buscarDocPorEspecialidad(especialidad):
 
 def crearRelacionesEntrePersonas():
     imprimrPersonas()
-    controlSinUso=0
+    control1=""
     while True:
         
         nombrePer1 = input("\nPor favor ingrese el nombre de la persona: ")
@@ -188,20 +188,21 @@ def crearRelacionesEntrePersonas():
         k = 'MATCH (u:Doctor) WHERE u.Name="'+nombrePer1+'" RETURN u'
         posPersonas2 = db.query(k, returns=(client.Node))
 
-        
-
         if (not posPersonas1):
-            controlSinUso=0           
+            control1="Paciente"          
         else:
+            control1="Paciente"
             break
             
         if (not posPersonas2):
-            controlSinUso=0
+            control1="Doctor"
         else:
+            control1="Doctor"
             break
         print ("La persoana ingresado no existe en la lista!")
 
-    
+    print(control1)
+    control2=""
     while True:
         
         nombrePer2 = input("\nIngrese a la persona que conoce "+nombrePer1+" : ")
@@ -215,15 +216,28 @@ def crearRelacionesEntrePersonas():
         
 
         if (not posPersonas1):
-            controlSinUso=0           
+            control2="Paciente"           
         else:
+            control2="Paciente"
             break
             
         if (not posPersonas2):
-            controlSinUso=0
+            control2="Doctor"
         else:
+            control2="Doctor"
             break
         print ("La persoana ingresado no existe en la lista!")
+    print(control2)
 
-    
-    nombrePer1.relationships.create("Knows", nombrePer2)
+    q = 'MATCH (u:'+control1+') WHERE u.Name="'+nombrePer1+'" RETURN u'
+    Qpersona1 = db.query(q, returns=(client.Node))
+            
+    k = 'MATCH (u:'+control2+') WHERE u.Name="'+nombrePer2+'" RETURN u'
+    Qpersona2 = db.query(k, returns=(client.Node))
+
+    for r in Qpersona1:
+        for i in Qpersona2:
+            #Se crea las relaciones de los nodos
+            r[0].relationships.create("Knows", i[0])
+
+    #nombrePer1.relationships.create("Knows", nombrePer2)
