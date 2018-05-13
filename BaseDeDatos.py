@@ -20,6 +20,9 @@ doctor.add(Oscar,Jose,Javier)
 
 p1 = db.nodes.create(Name="Paciente1", numero= "8888")
 paciente.add(p1)
+
+p3 = db.nodes.create(Name="Paciente3", numero= "8888")
+paciente.add(p3)
  
 p1.relationships.create("Visits",Oscar)
 
@@ -36,3 +39,4 @@ p2.relationships.create("Visits", Javier)
 #Paciente 1 conoce a paciente 2
 
 p1.relationships.create("Knows",p2)
+p2.relationships.create("Knows",p3)

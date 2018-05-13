@@ -58,6 +58,8 @@ while True:
         crearRelacionesEntrePersonas()
 
     elif (seleccion=="6"):
+        recomendacion=recomendacion1()
+        print(recomendacion)
 
         #primera recomendacion
         print("")

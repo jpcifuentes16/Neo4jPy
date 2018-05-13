@@ -235,4 +235,97 @@ def crearRelacionesEntrePersonas():
             #Se crea las relaciones de los nodos
             r[0].relationships.create("Knows", i[0])
 
+def getDocPorEspecialidad(especialidad):
+    q = 'MATCH (u:Doctor) WHERE u.Especialidad="'+especialidad+'" RETURN u'
+    pacientes = db.query(q, returns=(client.Node))
+
+    contador = 0
+    diccionario={}
+
     
+    for r in pacientes:
+        contador += 1
+        diccionario[r[0]["Name"]]=0
+                
+    if(contador==0):
+        return False
+    else:
+        return diccionario
+
+def getConocidos(persona):
+    q = 'MATCH (u:Paciente)-[r:Knows]->(m:Paciente) WHERE u.Name="'+persona+'" RETURN u, type(r), m'
+    conocidos = db.query(q, returns=(client.Node, str, client.Node))
+
+    contador = 0
+    lista=[]
+    conocidos2=[]
+    
+    
+    for r in conocidos:
+        contador += 1
+        lista.append(r[2]["Name"])
+        conocidos2.append(r[2]["Name"])
+
+    for i in lista:
+        q = 'MATCH (u:Paciente)-[r:Knows]->(m:Paciente) WHERE u.Name="'+i+'" RETURN u, type(r), m'
+        conocidos = db.query(q, returns=(client.Node, str, client.Node))
+
+        for r in conocidos:
+            contador += 1
+            conocidos2.append(r[2]["Name"])
+    print(conocidos2)
+    return conocidos2
+    
+    
+
+def recomendacion1():
+    imprimirPacientes()
+    while True:
+        
+        nombrePac = input("\nPor favor ingrese el nombre del paciente: ")
+
+        q = 'MATCH (u:Paciente) WHERE u.Name="'+nombrePac+'" RETURN u'
+        pacientes = db.query(q, returns=(client.Node))
+
+        if (not pacientes):
+            print ("El paciente ingresado no existe en la lista!")            
+        else:            
+            break
+
+    while True:
+        especialidad=input("Ingrese la especialidad de doctor que necesita: ")
+        if(getDocPorEspecialidad(especialidad)!=False):
+            listaDoc=getDocPorEspecialidad(especialidad)
+            print(listaDoc)
+            break
+
+    print(nombrePac)
+    conocidosLista=getConocidos(nombrePac)
+
+    for i in conocidosLista:
+        q = 'MATCH (u:Paciente)-[r:Visits]->(m:Doctor) WHERE u.Name="'+i+'" RETURN u, type(r), m'
+        conocidos = db.query(q, returns=(client.Node, str, client.Node))
+
+        for r in conocidos:
+            if(r[2]["Name"] in listaDoc):
+                listaDoc[r[2]["Name"]]=listaDoc[r[2]["Name"]]+1
+            
+    print(listaDoc)
+
+
+    listaCoincidencias=[]
+
+    for i in listaDoc.values():
+        listaCoincidencias.append(i)
+
+    listaCoincidencias.sort(reverse=True)
+    
+
+
+    sugerencia=[]
+    for x in listaDoc:
+        if(listaDoc[x]==listaCoincidencias[0]):
+            listaCoincidencias.pop(0)
+            sugerencia.append(x)
+            
+    return sugerencia
