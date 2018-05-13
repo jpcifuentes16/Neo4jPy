@@ -376,28 +376,6 @@ def recomendacion1():
 #conocidos del conocido) que posea una especialidad seleccionada
 def recomendarDoctor():
 
-    #Se imprime la lista de pacientes
-    imprimirPacientes()
-
-    #Ciclo para que el usuario seleccione uno de los pacientes en la base de datos
-    while True:
-        
-        nombrePac = input("\nPor favor ingrese el nombre del paciente actual: ")
-
-        q = 'MATCH (u:Paciente) WHERE u.Name="'+nombrePac+'" RETURN u'
-        pacientes = db.query(q, returns=(client.Node))
-
-        #Si el usuario ingresa un nombre inexistente
-        if (not pacientes):
-            print ("El paciente ingresado no existe en la lista!")
-
-        #De lo contrario, se guarda el nombre que ingreso
-        else:
-            for i in pacientes:  
-                pacienteSelec = i[0]["Name"]
-            break;
-        
-
     #Se imprime la lista de doctores
     imprimirDoctores()
 
