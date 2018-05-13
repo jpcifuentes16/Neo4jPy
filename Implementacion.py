@@ -20,6 +20,8 @@ medicina = db.labels.create("Medicina")
 visita = db.labels.create("Visita")
 fecha = db.labels.create("Fecha")
 
+
+#Metodo que permite ingresar un doctor a la base de datos
 def ingresarDoctor(nombre,especialidad,colegiado,telefono):
 
     nuevoDoc = db.nodes.create(Name = nombre, Especialidad = especialidad, Colegiado = colegiado, Telefono = telefono)
@@ -28,6 +30,7 @@ def ingresarDoctor(nombre,especialidad,colegiado,telefono):
     print ("\nDoctor agregado con exito!")
 
 
+#Metodo que permite ingresar un paciente a la base de datos
 def ingresarPaciente(nombre,telefono):
 
     nuevoPac = db.nodes.create(Name = nombre, Telefono = telefono)
@@ -36,10 +39,12 @@ def ingresarPaciente(nombre,telefono):
     print ("\nPaciente agregado con exito!")
 
 
+#Metodo que permite que un paciente seleccionado visite a un doctor
 def visitaDoc():
 
     imprimirPacientes()
 
+    #Ciclo para que el usuario seleccione uno de los pacientes en la base de datos
     while True:
         
         nombrePac = input("\nPor favor ingrese el nombre del paciente: ")
@@ -47,30 +52,35 @@ def visitaDoc():
         q = 'MATCH (u:Paciente) WHERE u.Name="'+nombrePac+'" RETURN u'
         pacientes = db.query(q, returns=(client.Node))
 
+        #Si el nombre ingresado no existe, se le hace saber al usuario
         if (not pacientes):
             print ("El paciente ingresado no existe en la lista!")
             
-        else:
-            
+        else:           
             break;
 
-
     imprimirDoctores()
-    
+
+     #Ciclo para que el usuario seleccione uno de los doctores en la base de datos
     while True:
 
         nombreDoc =input("\nPor favor ingrese el nombre del doctor: ")
 
         q = 'MATCH (u:Doctor) WHERE u.Name="'+nombreDoc+'" RETURN u'
         doctores = db.query(q, returns=(client.Node))
-
+        
+         #Si el nombre ingresado no existe, se le hace saber al usuario
         if (not doctores):
             print ("El doctor ingresado no existe en la lista!")
         else:
-            
+
+            #Se hace un request del nodo del doctor con el nombre que el usuario ingreso
+            #Y se almacena en una variable
             q = 'MATCH (u:Doctor) WHERE u.Name="'+nombreDoc+'" RETURN u'
             doctor3 = db.query(q, returns=(client.Node))
-            
+
+            #Se hace un request del nodo del doctor con el nombre que el usuario ingreso
+            #Y se almacena en una variable
             k = 'MATCH (u:Paciente) WHERE u.Name="'+nombrePac+'" RETURN u'
             pacientes = db.query(k, returns=(client.Node))
 
@@ -91,12 +101,7 @@ def visitaDoc():
 
             #Se crea el nodo de la medicina
             nodoMedicina = db.nodes.create(Name=nombreMed,desdeFecha=fechaInicio,hastaFecha=fechaFin,Dosis=dosis)
-            medicina.add(nodoMedicina)
-
-            
-           
-
-            
+            medicina.add(nodoMedicina)     
 
             for r in doctor3:
                 for i in pacientes:
@@ -108,34 +113,40 @@ def visitaDoc():
             break
         
 
-    
-
-
+#Metodo que imprime los pacientes existentes en la base de datos
 def imprimirPacientes():
 
+    #Se hace un request de los pacientes
     q = 'MATCH (u:Paciente) RETURN u'
     pacientes = db.query(q, returns=(client.Node))
 
     contador = 0
 
+    #Se imprime el nombre de cada uno de ellos
     print ("\nLa lista de pacientes es la siguiente:")
     for r in pacientes:
         contador += 1
         print( "%s. " "%s" % (contador, r[0]["Name"]))
 
 
+#Metodo que imprime los doctores que existen en la base de datos
 def imprimirDoctores():
 
+
+    #Se hace un request de los doctores
     q = 'MATCH (u:Doctor) RETURN u'
     pacientes = db.query(q, returns=(client.Node))
 
     contador = 0
-
+    
+    #Se imprime el nombre de cada uno de ellos
     print ("\nLa lista de doctores es la siguiente:")
     for r in pacientes:
         contador += 1
         print( "%s. " "%s" % (contador, r[0]["Name"]))
-        
+
+
+#Metodo que imprime todas las personas en la base de datos    
 def imprimrPersonas():
     q = 'MATCH (u:Paciente) RETURN u'
     pacientes = db.query(q, returns=(client.Node))
@@ -153,8 +164,38 @@ def imprimrPersonas():
     for r in pacientes:
         contador += 1
         print( "%s. " "%s" % (contador, r[0]["Name"]))
+
+
+#Metodo que imprime las especialidades existentes, sin repetirse
+def imprimirEspecialidades():
+    
+    q = 'MATCH (u:Doctor) RETURN u'
+    especialidades = db.query(q, returns=(client.Node))
+    
+    print ("\nLa lista de especialidades es la siguiente:")
+
+    #Si aun no hay especialidades ingresadas...
+    if (not especialidades):
+        print ("Lo sentimos, no hay especialidades ingresadas :(")
+
+    #De lo contrario, se ingresan a una lista aparte y se valida que
+    #no se repitan
+    else:
+
+        lista = []
+        
+        for r in especialidades:
+
+            x = r[0]["Especialidad"]
+            
+            if x not in lista:
+                lista.append(x)
+
+        #Se imprime la lista con las especialidades
+        print('\n'.join(lista))
     
 
+#Metodo que busca doctores dada una especialidad
 def buscarDocPorEspecialidad(especialidad):
     q = 'MATCH (u:Doctor) WHERE u.Especialidad="'+especialidad+'" RETURN u'
     pacientes = db.query(q, returns=(client.Node))
@@ -329,3 +370,114 @@ def recomendacion1():
             sugerencia.append(x)
             
     return sugerencia
+    
+
+#Metodo que busca que, segun un doctor seleccionado, busca otros doctores conocidos (o
+#conocidos del conocido) que posea una especialidad seleccionada
+def recomendarDoctor():
+
+    #Se imprime la lista de pacientes
+    imprimirPacientes()
+
+    #Ciclo para que el usuario seleccione uno de los pacientes en la base de datos
+    while True:
+        
+        nombrePac = input("\nPor favor ingrese el nombre del paciente actual: ")
+
+        q = 'MATCH (u:Paciente) WHERE u.Name="'+nombrePac+'" RETURN u'
+        pacientes = db.query(q, returns=(client.Node))
+
+        #Si el usuario ingresa un nombre inexistente
+        if (not pacientes):
+            print ("El paciente ingresado no existe en la lista!")
+
+        #De lo contrario, se guarda el nombre que ingreso
+        else:
+            for i in pacientes:  
+                pacienteSelec = i[0]["Name"]
+            break;
+        
+
+    #Se imprime la lista de doctores
+    imprimirDoctores()
+
+    #Ciclo para que el usuario seleccione uno de los pacientes en la base de datos
+    while True:
+
+        nombreDoc =input("\nPor favor ingrese el nombre del doctor actual: ")
+
+        q = 'MATCH (u:Doctor) WHERE u.Name="'+nombreDoc+'" RETURN u'
+        doctores = db.query(q, returns=(client.Node))
+
+        #Si el usuario ingresa un nombre inexistente
+        if (not doctores):
+            print ("El doctor ingresado no existe en la lista!")
+
+        #De lo contrario, se guarda el nombre que ingreso
+        else:       
+            for i in doctores:  
+                docSelec = i[0]["Name"]
+            break
+
+    #Se imprimen las especialidaes disponibles
+    imprimirEspecialidades()
+    
+    while True:
+
+        especialidad = input("\nIngrese que tipo de especialidad busca en el doctor: ")
+        
+        q = 'MATCH (u:Doctor) WHERE u.Especialidad="'+especialidad+'" RETURN u'
+        especialidades = db.query(q, returns=(client.Node))
+
+         #Si el usuario ingresa una especialidad inexistente
+        if (not especialidades):
+            print ("La especialidad seleccionada no se encuentra en la lista!")
+        else:
+
+            #De lo contrario, se guarda el la especialidad que ingreso
+            for i in especialidades:  
+                especialidadSelec = i[0]["Especialidad"]
+            break
+
+
+    #Se hace una busqueda de los doctores que el doctor seleccionado conoce, que posean
+    #la especialidad ingresada por el usuario
+    k = 'MATCH (u:Doctor)-[r:Knows]->(m:Doctor) WHERE u.Name="'+nombreDoc+'" AND m.Especialidad="'+especialidadSelec+'" RETURN u, type(r), m'
+    conocidos = db.query(k, returns=(client.Node, str, client.Node))
+
+    #Si no hay doctores conocidos con esa especialidad, se le indica al usuario
+    if (not conocidos):
+        print("Lo sentimos, el doctor no conoce a nadie con esa especialidad :(")
+
+    #De lo contrario...
+    else:
+
+        #Se estabablecen variables generales
+        print ("\nLos doctor(es) que le recomienda el doctor con esa especialidad son: ")
+        z = ""
+        contador = 0
+
+        #Se imprimen los nombres de los doctores que el doctor conozca con esa
+        #especialidad
+        for i in conocidos:
+            
+            contador += 1;
+            c = z
+            
+            print ("%s. %s, telefono: %s" % (contador, i[2]["Name"],i[2]["Telefono"]))
+            z = i[2]["Name"]
+
+            #Se hace un request de los doctores que el conocido del doctor conozca y
+            #que posean la especialidad seleccionada
+            w = 'MATCH (u:Doctor)-[r:Knows]->(m:Doctor) WHERE u.Name="'+z+'" AND m.Especialidad="'+especialidadSelec+'" RETURN u, type(r), m'
+            conocidosX2 = db.query(w, returns=(client.Node, str, client.Node))
+
+            for t in conocidosX2:
+
+                contador += 1
+
+                #Se imprimen los conocidos del conocido, validando que no
+                #hayan sido imprimidos anteriormente
+                if (c != t[2]["Name"]):
+                    print ("%s. %s, telefono: %s" % (contador, t[2]["Name"], i[2]["Telefono"]))
+            

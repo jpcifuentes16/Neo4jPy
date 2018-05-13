@@ -13,7 +13,7 @@ from Implementacion import *
 #___________Declaracion de variables__________#
 
 menu = "\nLa lista de funciones es:\n1. Ingresar un doctor. \n2. Ingresar un paciente. \n3. Paciente dado visita a doctor. \n4. Consultar doctores con una especialidad. \n5. Ingresar que una perosna conoce a otra."
-menu=menu+"6. Buscar recomendacion de doctor con especialidad especifica.\n7. Buscar recomendacion para referir a un paciente.\n8. Salir del programa.\n"
+menu=menu+"\n6. Buscar recomendacion de doctor con especialidad especifica.\n7. Buscar recomendacion para referir a un paciente.\n8. Salir del programa.\n"
 listaPacientes = {}
 listaDoctores = {}
 
@@ -64,8 +64,8 @@ while True:
         #primera recomendacion
         print("")
     elif (seleccion=="7"):
-        #segunda recomendacion
-        print("")
+        
+        recomendarDoctor()
         
     elif(seleccion=="8"):
         print ("Saliendo del maravilloso programa...")
