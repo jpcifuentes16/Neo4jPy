@@ -87,12 +87,7 @@ def visitaDoc():
 
             #Se crea el nodo de la fecha en que se realizo la consulta
             fecha = input ("\nIngrese la fecha de consulta: ")
-            '''
-            nodoFecha = db.nodes.create(Fecha=fecha)
-            fecha = db.labels.create("Fecha")
-            fecha.add(nodoFecha)
-'''
-
+   
             #Se ingresan los datos de la prescripcion
             nombreMed = input ("Ingrese la medicina recetada al paciente: ")
             fechaInicio = input ("Ingrese la fecha de inicio del tratamiento: ")
@@ -210,20 +205,27 @@ def buscarDocPorEspecialidad(especialidad):
     if(contador==0):
         print("No hay ningun doctor con dicha especialidad")
 
-
+# Se crean relaciones dentre personas
+# Doctor - Doctor
+# Paciente - Doctor
+# Paciente - Paciente
 def crearRelacionesEntrePersonas():
-    imprimrPersonas()
+   imprimrPersonas()
     control1=""
     while True:
         
+        # Se solicita el nombre de la persona
         nombrePer1 = input("\nPor favor ingrese el nombre de la persona: ")
 
+        # creamos la primera posible Query si es paciente
         q = 'MATCH (u:Paciente) WHERE u.Name="'+nombrePer1+'" RETURN u'
         posPersonas1 = db.query(q, returns=(client.Node))
 
+        # creamos la primera posible Query si es doctor
         k = 'MATCH (u:Doctor) WHERE u.Name="'+nombrePer1+'" RETURN u'
         posPersonas2 = db.query(k, returns=(client.Node))
 
+        # Se determina si es paciente o doctor
         if (not posPersonas1):
             control1="Paciente"          
         else:
@@ -240,17 +242,18 @@ def crearRelacionesEntrePersonas():
     print(control1)
     control2=""
     while True:
-        
+        # Se solicita el nombre de la persona
         nombrePer2 = input("\nIngrese a la persona que conoce "+nombrePer1+" : ")
 
+        # creamos la primera posible Query si es paciente
         q = 'MATCH (u:Paciente) WHERE u.Name="'+nombrePer2+'" RETURN u'
         posPersonas1 = db.query(q, returns=(client.Node))
 
+        # creamos la primera posible Query si es doctor
         k = 'MATCH (u:Doctor) WHERE u.Name="'+nombrePer2+'" RETURN u'
         posPersonas2 = db.query(k, returns=(client.Node))
 
-        
-
+        # Se determina si es paciente o doctor
         if (not posPersonas1):
             control2="Paciente"           
         else:
@@ -276,13 +279,14 @@ def crearRelacionesEntrePersonas():
             #Se crea las relaciones de los nodos
             r[0].relationships.create("Knows", i[0])
 
+# Se busca doctores de x especialidad
+# se retorna un diccionario con todos los doctores
 def getDocPorEspecialidad(especialidad):
     q = 'MATCH (u:Doctor) WHERE u.Especialidad="'+especialidad+'" RETURN u'
     pacientes = db.query(q, returns=(client.Node))
 
     contador = 0
     diccionario={}
-
     
     for r in pacientes:
         contador += 1
@@ -293,20 +297,22 @@ def getDocPorEspecialidad(especialidad):
     else:
         return diccionario
 
+# Se devuelve una lista con todos los conocidos y conocidos de conocidos de x persona
 def getConocidos(persona):
     q = 'MATCH (u:Paciente)-[r:Knows]->(m:Paciente) WHERE u.Name="'+persona+'" RETURN u, type(r), m'
     conocidos = db.query(q, returns=(client.Node, str, client.Node))
 
     contador = 0
     lista=[]
-    conocidos2=[]
+    conocidos2=[]    
     
-    
+    # Se buscan todos los conocidos
     for r in conocidos:
         contador += 1
         lista.append(r[2]["Name"])
         conocidos2.append(r[2]["Name"])
 
+    # Por cada conocido se buscan todos los conocidos de esa persona
     for i in lista:
         q = 'MATCH (u:Paciente)-[r:Knows]->(m:Paciente) WHERE u.Name="'+i+'" RETURN u, type(r), m'
         conocidos = db.query(q, returns=(client.Node, str, client.Node))
@@ -318,11 +324,12 @@ def getConocidos(persona):
     return conocidos2
     
     
-
+# Se recomiendan doctores que sean de confianza, es decir que hayan sido visitados
+# Por conocidos o conocidos de conocidos de x paciente
 def recomendacion1():
     imprimirPacientes()
     while True:
-        
+        # se colicita el nombre del paciente 
         nombrePac = input("\nPor favor ingrese el nombre del paciente: ")
 
         q = 'MATCH (u:Paciente) WHERE u.Name="'+nombrePac+'" RETURN u'
@@ -333,6 +340,7 @@ def recomendacion1():
         else:            
             break
 
+    # Se solicita la especialidad que se guste
     while True:
         especialidad=input("Ingrese la especialidad de doctor que necesita: ")
         if(getDocPorEspecialidad(especialidad)!=False):
@@ -343,26 +351,25 @@ def recomendacion1():
     print(nombrePac)
     conocidosLista=getConocidos(nombrePac)
 
+    # se recorren los conocidos y conocidos de los conocidos
     for i in conocidosLista:
         q = 'MATCH (u:Paciente)-[r:Visits]->(m:Doctor) WHERE u.Name="'+i+'" RETURN u, type(r), m'
         conocidos = db.query(q, returns=(client.Node, str, client.Node))
 
+        #si el conocido ha visitado un doctor con x especialidad se suma 1 a las coincidencias
         for r in conocidos:
             if(r[2]["Name"] in listaDoc):
                 listaDoc[r[2]["Name"]]=listaDoc[r[2]["Name"]]+1
             
     print(listaDoc)
 
-
+    #procedimiento para ordenar el diccionario de mayor coincidencia a menor
     listaCoincidencias=[]
 
     for i in listaDoc.values():
         listaCoincidencias.append(i)
 
     listaCoincidencias.sort(reverse=True)
-    
-
-
     sugerencia=[]
     for x in listaDoc:
         if(listaDoc[x]==listaCoincidencias[0]):
@@ -458,4 +465,3 @@ def recomendarDoctor():
                 #hayan sido imprimidos anteriormente
                 if (c != t[2]["Name"]):
                     print ("%s. %s, telefono: %s" % (contador, t[2]["Name"], i[2]["Telefono"]))
-            
