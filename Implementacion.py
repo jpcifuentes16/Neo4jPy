@@ -210,7 +210,7 @@ def buscarDocPorEspecialidad(especialidad):
 # Paciente - Doctor
 # Paciente - Paciente
 def crearRelacionesEntrePersonas():
-   imprimrPersonas()
+    imprimrPersonas()
     control1=""
     while True:
         
@@ -320,7 +320,7 @@ def getConocidos(persona):
         for r in conocidos:
             contador += 1
             conocidos2.append(r[2]["Name"])
-    print(conocidos2)
+    #print(conocidos2)
     return conocidos2
     
     
@@ -345,10 +345,10 @@ def recomendacion1():
         especialidad=input("Ingrese la especialidad de doctor que necesita: ")
         if(getDocPorEspecialidad(especialidad)!=False):
             listaDoc=getDocPorEspecialidad(especialidad)
-            print(listaDoc)
+            #print(listaDoc)
             break
 
-    print(nombrePac)
+    #print(nombrePac)
     conocidosLista=getConocidos(nombrePac)
 
     # se recorren los conocidos y conocidos de los conocidos
@@ -361,7 +361,7 @@ def recomendacion1():
             if(r[2]["Name"] in listaDoc):
                 listaDoc[r[2]["Name"]]=listaDoc[r[2]["Name"]]+1
             
-    print(listaDoc)
+    #print(listaDoc)
 
     #procedimiento para ordenar el diccionario de mayor coincidencia a menor
     listaCoincidencias=[]
